@@ -1,5 +1,8 @@
 import { Nav, NavLink } from '@/components/Nav';
 
+// Disable Nextjs caching in admin page
+export const dynamic = 'force-dynamic';
+
 export default function AdminLayout({
   children,
 }: Readonly<{
