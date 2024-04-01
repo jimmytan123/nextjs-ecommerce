@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import db from '@/db/db';
 import { redirect } from 'next/navigation';
 
-// Custom schema type(File & Image)
+// Custom schema type(File & Image) with the help of ZOD
 const fileScehma = z.instanceof(File, { message: 'Required' });
 const imageScehma = fileScehma.refine(
   (file) => file.size === 0 || file.type.startsWith('image/')
@@ -19,7 +19,7 @@ const addSchema = z.object({
   image: imageScehma.refine((file) => file.size > 0, 'Required'),
 });
 
-export async function addProduct(formData: FormData) {
+export async function addProduct(prevState: unknown, formData: FormData) {
   const formDataObj = Object.fromEntries(formData.entries());
 
   const result = addSchema.safeParse(formDataObj);
@@ -49,6 +49,7 @@ export async function addProduct(formData: FormData) {
   // TODO: error handling
   await db.product.create({
     data: {
+      isAvailableForPurchase: false,
       name: result.data.name,
       description: result.data.description,
       priceInCents: result.data.priceInCents,
