@@ -98,12 +98,14 @@ async function ProductsTable() {
                     <span className="sr-only">Actions</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem>
                       <a
                         download
                         href={`/admin/products/${product.id}/download`}
-                      />
-                      Download
+                        className="cursor-pointer w-full"
+                      >
+                        Download
+                      </a>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link
