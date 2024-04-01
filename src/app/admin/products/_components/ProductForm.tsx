@@ -8,16 +8,35 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/formatters';
 import * as actions from '../../_actions/products';
 import { useFormState, useFormStatus } from 'react-dom';
+import { Product } from '@prisma/client';
+import Image from 'next/image';
 
-export default function ProductForm() {
-  const [error, action] = useFormState(actions.addProduct, {});
-  const [priceInCents, setPriceIncents] = useState<number>();
+interface ProductFormProps {
+  product?: Product | null;
+}
+
+export default function ProductForm({ product }: ProductFormProps) {
+  const [error, action] = useFormState(
+    product == null
+      ? actions.addProduct
+      : actions.updateProduct.bind(null, product.id),
+    {}
+  );
+  const [priceInCents, setPriceIncents] = useState<number | undefined>(
+    product?.priceInCents
+  );
 
   return (
     <form action={action} className="space-y-8">
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
-        <Input type="text" id="name" name="name" required />
+        <Input
+          type="text"
+          id="name"
+          name="name"
+          required
+          defaultValue={product?.name || ''}
+        />
         {error.name && (
           <div className="text-destructive-foreground bg-destructive p-2 rounded text-sm">
             {error.name}
@@ -45,7 +64,12 @@ export default function ProductForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" required />
+        <Textarea
+          id="description"
+          name="description"
+          required
+          defaultValue={product?.description}
+        />
         {error.description && (
           <div className="text-destructive-foreground bg-destructive p-2 rounded text-sm">
             {error.description}
@@ -54,7 +78,18 @@ export default function ProductForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="file">File</Label>
-        <Input type="file" id="file" name="file" required />
+        <Input
+          type="file"
+          id="file"
+          name="file"
+          required={product == null}
+          className="cursor-pointer"
+        />
+        {product != null && (
+          <div className="text-muted-foreground text-sm">
+            {product.filePath}
+          </div>
+        )}
         {error.file && (
           <div className="text-destructive-foreground bg-destructive p-2 rounded text-sm">
             {error.file}
@@ -63,7 +98,24 @@ export default function ProductForm() {
       </div>
       <div className="space-y-2">
         <Label htmlFor="image">Image</Label>
-        <Input type="file" id="image" name="image" required />
+        <Input
+          type="file"
+          id="image"
+          name="image"
+          required={product == null}
+          className="cursor-pointer"
+        />
+        {product != null && (
+          <>
+            <p className="text-sm text-muted-foreground">Existing Image: </p>
+            <Image
+              src={product.imagePath}
+              height="300"
+              width="300"
+              alt="product image"
+            />
+          </>
+        )}
         {error.image && (
           <div className="text-destructive-foreground bg-destructive p-2 rounded text-sm">
             {error.image}

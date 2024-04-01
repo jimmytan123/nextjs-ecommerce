@@ -84,3 +84,64 @@ export async function deleteProduct(id: string) {
   await fs.unlink(product.filePath);
   await fs.unlink(`public${product.imagePath}`);
 }
+
+const editSchema = addSchema.extend({
+  file: fileScehma.optional(),
+  image: imageScehma.optional(),
+});
+
+export async function updateProduct(
+  id: string,
+  prevState: unknown,
+  formData: FormData
+) {
+  const formDataObj = Object.fromEntries(formData.entries());
+
+  const result = editSchema.safeParse(formDataObj);
+
+  if (!result.success) {
+    return result.error.formErrors.fieldErrors;
+  }
+
+  const data = result.data;
+  const product = await db.product.findUnique({ where: { id: id } });
+
+  if (product == null) return notFound();
+
+  let filePath = product.filePath;
+  if (data.file != null && data.file.size > 0) {
+    // Remove old file
+    await fs.unlink(product.filePath);
+
+    // Update the new file path and save
+    filePath = `products/${crypto.randomUUID()}-${data.file.name}`;
+    await fs.writeFile(filePath, Buffer.from(await data.file.arrayBuffer()));
+  }
+
+  let imagePath = product.imagePath;
+  if (data.image != null && data.image.size > 0) {
+    //Remove the old image
+    await fs.unlink(`public${product.imagePath}`);
+
+    // Update the new image path and save
+    imagePath = `/products/${crypto.randomUUID()}-${data.image.name}`;
+    await fs.writeFile(
+      `public${imagePath}`,
+      Buffer.from(await data.image.arrayBuffer())
+    );
+  }
+
+  // TODO: error handling
+  await db.product.update({
+    where: { id: id },
+    data: {
+      name: result.data.name,
+      description: result.data.description,
+      priceInCents: result.data.priceInCents,
+      filePath,
+      imagePath,
+    },
+  });
+
+  redirect('/admin/products');
+}

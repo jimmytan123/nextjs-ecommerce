@@ -30,6 +30,7 @@ export function ActiveToggleDropdownItem({
           router.refresh();
         });
       }}
+      className='cursor-pointer w-full'
     >
       {isAvailableForPurchase ? 'Deactivate' : 'Activate'}
     </DropdownMenuItem>
@@ -55,6 +56,7 @@ export function DeleteDropdownItem({ id, disabled }: DeleteDropdownItemProps) {
           router.refresh();
         });
       }}
+      className='cursor-pointer w-full'
     >
       Delete
     </DropdownMenuItem>
