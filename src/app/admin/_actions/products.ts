@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import fs from 'fs/promises';
 import db from '@/db/db';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 // Custom schema type(File & Image) with the help of ZOD
 const fileScehma = z.instanceof(File, { message: 'Required' });
@@ -59,4 +59,28 @@ export async function addProduct(prevState: unknown, formData: FormData) {
   });
 
   redirect('/admin/products');
+}
+
+export async function toggleProductAvailability(
+  id: string,
+  isAvailableForPurchase: boolean
+) {
+  await db.product.update({
+    where: { id: id },
+    data: {
+      isAvailableForPurchase,
+    },
+  });
+}
+
+export async function deleteProduct(id: string) {
+  const product = await db.product.delete({
+    where: { id: id },
+  });
+
+  if (product == null) return notFound();
+
+  // Delete file and image when delete the product
+  await fs.unlink(product.filePath);
+  await fs.unlink(`public${product.imagePath}`);
 }
