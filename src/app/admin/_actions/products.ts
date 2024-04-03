@@ -4,6 +4,7 @@ import { z } from 'zod';
 import fs from 'fs/promises';
 import db from '@/db/db';
 import { notFound, redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 // Custom schema type(File & Image) with the help of ZOD
 const fileScehma = z.instanceof(File, { message: 'Required' });
@@ -58,6 +59,8 @@ export async function addProduct(prevState: unknown, formData: FormData) {
     },
   });
 
+  revalidatePath('/');
+  revalidatePath('/products');
   redirect('/admin/products');
 }
 
@@ -83,6 +86,9 @@ export async function deleteProduct(id: string) {
   // Delete file and image when delete the product
   await fs.unlink(product.filePath);
   await fs.unlink(`public${product.imagePath}`);
+
+  revalidatePath('/');
+  revalidatePath('/products');
 }
 
 const editSchema = addSchema.extend({
@@ -143,5 +149,7 @@ export async function updateProduct(
     },
   });
 
+  revalidatePath('/');
+  revalidatePath('/products');
   redirect('/admin/products');
 }
