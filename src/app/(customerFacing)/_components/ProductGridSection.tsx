@@ -2,7 +2,8 @@ import { Product } from '@prisma/client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import ProductCard from '@/components/ProductCard';
+import ProductCard, { ProductCardSkeleton } from '@/components/ProductCard';
+import { Suspense } from 'react';
 
 interface ProductGridSectionProps {
   productsFetcher: () => Promise<Product[]>;
@@ -13,8 +14,6 @@ export default async function ProductGridSection({
   productsFetcher,
   title,
 }: ProductGridSectionProps) {
-  const products = await productsFetcher();
-
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
@@ -27,19 +26,39 @@ export default async function ProductGridSection({
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => {
-          return (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              description={product.description}
-              priceInCents={product.priceInCents}
-              imagePath={product.imagePath}
-            />
-          );
-        })}
+        <Suspense
+          fallback={
+            <>
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+            </>
+          }
+        >
+          <ProductSuspense productsFetcher={productsFetcher} />
+        </Suspense>
       </div>
     </div>
   );
+}
+
+async function ProductSuspense({
+  productsFetcher,
+}: {
+  productsFetcher: () => Promise<Product[]>;
+}) {
+  const products = await productsFetcher();
+
+  return products.map((product) => {
+    return (
+      <ProductCard
+        key={product.id}
+        id={product.id}
+        name={product.name}
+        description={product.description}
+        priceInCents={product.priceInCents}
+        imagePath={product.imagePath}
+      />
+    );
+  });
 }
