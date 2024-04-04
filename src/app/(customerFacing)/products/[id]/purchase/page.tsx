@@ -1,12 +1,15 @@
 import db from '@/db/db';
 import { notFound } from 'next/navigation';
 import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 import CheckoutForm from './_components/CheckoutForm';
+
+// Load Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 interface PurchasePageProps {
   params: { id: string };
 }
+
 export default async function PurchasePage({
   params: { id },
 }: PurchasePageProps) {
@@ -17,7 +20,7 @@ export default async function PurchasePage({
   const paymentIntent = await stripe.paymentIntents.create({
     amount: product.priceInCents,
     currency: 'usd',
-    metadata: { productId: product.id },
+    metadata: { productId: product.id }, // inject custom metadata
     automatic_payment_methods: {
       enabled: true,
     },
