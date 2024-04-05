@@ -2,6 +2,7 @@ import db from '@/db/db';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { Resend } from 'resend';
+import PurchaseReceiptEmail from '@/email/PurchaseReceipt';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     //https://docs.stripe.com/api/events/types#event_types-charge.succeeded
     case 'charge.succeeded':
       const charge = event.data.object;
-      const productId = charge.metadata.productId;
+      const productId = charge.metadata.productId; // provided manually by the metadata(when creating the payment indent)
       const email = charge.billing_details.email;
       const pricePaidInCents = charge.amount;
 
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
         orders: { create: { productId, pricePaidInCents } },
       };
 
+      // Create order
       const {
         orders: [order],
       } = await db.user.upsert({
@@ -43,6 +45,7 @@ export async function POST(req: NextRequest) {
         select: { orders: { orderBy: { createdAt: 'desc' }, take: 1 } },
       });
 
+      // Create downloadVerification
       const downloadVerification = await db.downloadVerification.create({
         data: {
           productId,
@@ -54,7 +57,13 @@ export async function POST(req: NextRequest) {
         from: `Support <${process.env.SENDER_EMAIL}>`,
         to: email,
         subject: 'Order Confirmation',
-        react: <h1>Hello!</h1>,
+        react: (
+          <PurchaseReceiptEmail
+            order={order}
+            product={product}
+            downloadVerificationId={downloadVerification.id}
+          />
+        ),
       });
 
       break;
