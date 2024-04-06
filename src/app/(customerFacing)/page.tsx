@@ -2,6 +2,7 @@ import db from '@/db/db';
 import ProductGridSection from './_components/ProductGridSection';
 import { cache } from '@/lib/cache';
 
+// Fetching most popular products, wrapped by the custom cache function, revalidate for 24 hours
 const getMostPopularProducts = cache(
   () => {
     return db.product.findMany({
@@ -20,6 +21,7 @@ const getMostPopularProducts = cache(
   { revalidate: 60 * 60 * 24 }
 );
 
+// Fetching newest products, wrapped by the custom cache function, revalidate for 24 hours
 const getNewestProducts = cache(
   () => {
     return db.product.findMany({

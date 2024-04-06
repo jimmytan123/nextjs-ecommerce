@@ -8,6 +8,8 @@ import { deleteOrder } from '../../_actions/orders';
 interface DeleteDropdownItemProps {
   id: string;
 }
+
+// Component
 export function DeleteDropdownItem({ id }: DeleteDropdownItemProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();

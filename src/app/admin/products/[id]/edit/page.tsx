@@ -10,7 +10,7 @@ export default async function EditProductPage({
   params: { id },
 }: EditProductPageProps) {
   const product = await db.product.findUnique({ where: { id } });
-  
+
   return (
     <>
       <PageHeader>Edit Product</PageHeader>

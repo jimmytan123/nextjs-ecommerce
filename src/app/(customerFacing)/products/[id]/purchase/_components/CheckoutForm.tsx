@@ -147,6 +147,7 @@ function Form({
     event: StripeLinkAuthenticationElementChangeEvent
   ) {
     setEmail(event.value.email);
+    
     if (event.complete) {
       setIsEmailCompleted(true);
     } else {

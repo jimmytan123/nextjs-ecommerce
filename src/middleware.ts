@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isVaildPassword } from './lib/isValidPassword';
 
-//Define Middleware
+//Define Middleware for protecting routes
 export async function middleware(req: NextRequest) {
   const authenticated = await isAuthenticated(req);
 

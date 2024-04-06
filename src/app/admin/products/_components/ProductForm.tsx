@@ -15,6 +15,7 @@ interface ProductFormProps {
   product?: Product | null;
 }
 
+// Component - prefill input fields if edit mode(has product props), otherwise, show empty field
 export default function ProductForm({ product }: ProductFormProps) {
   const [error, action] = useFormState(
     product == null

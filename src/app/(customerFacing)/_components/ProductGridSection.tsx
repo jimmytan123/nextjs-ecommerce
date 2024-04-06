@@ -42,6 +42,7 @@ export default async function ProductGridSection({
   );
 }
 
+// Component for fetching and rendering list of product cards - need to be here since it is wrapped by the <Suspense/>
 async function ProductSuspense({
   productsFetcher,
 }: {

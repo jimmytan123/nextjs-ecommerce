@@ -2,12 +2,14 @@ import db from '@/db/db';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 
+// Route handlers to create custom request handlers
 export async function GET(
   req: NextRequest,
   {
     params: { downloadVerificationId },
   }: { params: { downloadVerificationId: string } }
 ) {
+  // Select the download verification based on given id from the url params and return non-expiry data
   const data = await db.downloadVerification.findUnique({
     where: { id: downloadVerificationId, expiresAt: { gt: new Date() } },
     select: { product: { select: { filePath: true, name: true } } },

@@ -20,7 +20,7 @@ export default async function PurchasePage({
   const paymentIntent = await stripe.paymentIntents.create({
     amount: product.priceInCents,
     currency: 'usd',
-    metadata: { productId: product.id }, // inject custom metadata
+    metadata: { productId: product.id }, // inject custom metadata, will be used once payment successful
     automatic_payment_methods: {
       enabled: true,
     },

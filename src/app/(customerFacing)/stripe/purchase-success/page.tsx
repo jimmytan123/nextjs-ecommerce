@@ -6,8 +6,10 @@ import db from '@/db/db';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+// Load Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
+// SuccessPage - after Stripe redirect
 export default async function SuccessPage({
   searchParams,
 }: {
@@ -22,6 +24,7 @@ export default async function SuccessPage({
 
   if (paymentIntent.metadata.productId == null) return notFound();
 
+  // Find product based on productId from the metadata of the paymentIntent
   const product = await db.product.findUnique({
     where: { id: paymentIntent.metadata.productId },
   });
@@ -71,6 +74,7 @@ export default async function SuccessPage({
   );
 }
 
+// Create download verification after receiving the successful paymentIntent status
 async function createDownloadVerification(productId: string) {
   return (
     await db.downloadVerification.create({

@@ -42,6 +42,7 @@ export async function emailOrderHistory(
   });
 
   if (user === null) {
+    // For security concern, here display a more generic error message
     return {
       message:
         'Check your email to view your order history and download your prodcuts.',

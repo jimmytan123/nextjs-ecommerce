@@ -13,6 +13,7 @@ interface ActiveToggleDropdownItemProps {
   isAvailableForPurchase: boolean;
 }
 
+// Component
 export function ActiveToggleDropdownItem({
   id,
   isAvailableForPurchase,
@@ -30,7 +31,7 @@ export function ActiveToggleDropdownItem({
           router.refresh();
         });
       }}
-      className='cursor-pointer w-full'
+      className="cursor-pointer w-full"
     >
       {isAvailableForPurchase ? 'Deactivate' : 'Activate'}
     </DropdownMenuItem>
@@ -42,6 +43,7 @@ interface DeleteDropdownItemProps {
   disabled: boolean;
 }
 
+// Component
 export function DeleteDropdownItem({ id, disabled }: DeleteDropdownItemProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -56,7 +58,7 @@ export function DeleteDropdownItem({ id, disabled }: DeleteDropdownItemProps) {
           router.refresh();
         });
       }}
-      className='cursor-pointer w-full'
+      className="cursor-pointer w-full"
     >
       Delete
     </DropdownMenuItem>

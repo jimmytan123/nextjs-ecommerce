@@ -8,12 +8,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
+// Stripe will call this webhook endpoint
 export async function POST(req: NextRequest) {
-  const event = await stripe.webhooks.constructEvent(
-    await req.text(),
-    req.headers.get('stripe-signature') as string,
-    process.env.STRIPE_WEBHOOK_SECRET as string
-  );
+  let event: Stripe.Event;
+
+  try {
+    event = await stripe.webhooks.constructEvent(
+      await req.text(),
+      req.headers.get('stripe-signature') as string,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+  } catch (err) {
+    return new NextResponse(`Webhook Error: ${err}`, { status: 400 });
+  }
 
   // Handle the event
   switch (event.type) {
@@ -53,6 +60,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // Send Email to customer
       await resend.emails.send({
         from: `Support <${process.env.SENDER_EMAIL}>`,
         to: email,

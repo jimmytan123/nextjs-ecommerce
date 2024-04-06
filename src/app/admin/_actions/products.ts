@@ -6,12 +6,13 @@ import db from '@/db/db';
 import { notFound, redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-// Custom schema type(File & Image) with the help of ZOD
+// Custom schema type(File & Image) with the help of Zod
 const fileScehma = z.instanceof(File, { message: 'Required' });
 const imageScehma = fileScehma.refine(
   (file) => file.size === 0 || file.type.startsWith('image/')
 );
 
+// Schema for adding product
 const addSchema = z.object({
   name: z.string().min(3),
   description: z.string().min(10),
@@ -116,7 +117,7 @@ export async function updateProduct(
 
   let filePath = product.filePath;
   if (data.file != null && data.file.size > 0) {
-    // Remove old file
+    // Remove old file if there is a file
     await fs.unlink(product.filePath);
 
     // Update the new file path and save
