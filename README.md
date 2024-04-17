@@ -19,7 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## .env File
 
-To run the app, you have to create a .env file that contains the folling info:
+To run the app locally, you have to create a .env file that contains the following info:
 
 ```
 DATABASE_URL="file:./dev.db"
@@ -39,14 +39,14 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 
 ## Stripe Webhook
 
-To listen for Stripe webhook locally,
+To listen for Stripe webhook locally for handling any events:
 
 Install Stripe CLI, login
 ```
 stripe login
 ```
 
-Forword Stripe wehbook to our api handler:
+Forword Stripe wehbook to the next app API handler:
 ```
 stripe listen --forward-to localhost:3000/webhooks/stripe
 ```
