@@ -39,14 +39,14 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 
 ## Stripe Webhook
 
-To listen for Stripe webhook locally for handling any events:
+To listen for Stripe Webhook Events locally for handling any events:
 
 Install Stripe CLI, login
 ```
 stripe login
 ```
 
-Forword Stripe wehbook to the next app API handler:
+Forward Stripe Wehbook to our web app API handler:
 ```
 stripe listen --forward-to localhost:3000/webhooks/stripe
 ```
