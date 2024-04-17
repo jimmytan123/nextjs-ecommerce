@@ -46,6 +46,7 @@ export default function CheckoutForm({
     theme: 'stripe',
   };
 
+  // Options to initialize the Stripe Payment Element
   const options: StripeElementsOptions = {
     clientSecret,
     appearance,
@@ -79,6 +80,7 @@ export default function CheckoutForm({
   );
 }
 
+// Child Component of CheckoutForm
 function Form({
   priceInCents,
   productId,
@@ -96,6 +98,7 @@ function Form({
   const [isEmailCompleted, setIsEmailCompleted] = useState<boolean>(false);
   const [isFormRendered, setIsFormRendered] = useState<boolean>(false);
 
+  // Handle form submission
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 

@@ -42,12 +42,13 @@ export default async function ProductGridSection({
   );
 }
 
-// Component for fetching and rendering list of product cards - need to be here since it is wrapped by the <Suspense/>
+// Component for fetching and rendering list of product cards - need to be a standalone component since it is wrapped by the <Suspense/>
 async function ProductSuspense({
   productsFetcher,
 }: {
   productsFetcher: () => Promise<Product[]>;
 }) {
+  // Fetch products based on productsFetcher function where coming from parent/grandparent level component
   const products = await productsFetcher();
 
   return products.map((product) => {
