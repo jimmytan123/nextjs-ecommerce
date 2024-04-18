@@ -22,7 +22,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 To run the app locally, you have to create a .env file that contains the following info:
 
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL=<your postgresql url>
 
 ADMIN_USERNAME=<your user name for login admin pages>
 HASHED_ADMIN_PASSWORD=<password in the hashed version>
