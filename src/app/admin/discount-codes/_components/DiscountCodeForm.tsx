@@ -20,6 +20,9 @@ interface DiscountCodeFormProps {
 export default function DiscountCodeForm({ products }: DiscountCodeFormProps) {
   const [error, action] = useFormState(actions.addDiscountCode, {});
   const [allProductsChecked, setAllProductsChecked] = useState(true);
+  
+  const today = new Date();
+  today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
 
   return (
     <form action={action} className="space-y-8">
@@ -92,7 +95,7 @@ export default function DiscountCodeForm({ products }: DiscountCodeFormProps) {
           type="datetime-local"
           id="expiresAt"
           name="expiresAt"
-          min={new Date().toJSON().split(':').slice(0, -1).join(':')}
+          min={today.toJSON().split(':').slice(0, -1).join(':')}
         />
         <div className="text-muted-foreground">
           Leave blank for no expiration

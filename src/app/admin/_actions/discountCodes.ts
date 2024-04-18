@@ -75,3 +75,20 @@ export async function addDiscountCode(prevState: unknown, formData: FormData) {
 
   redirect('/admin/discount-codes');
 }
+
+export async function toggleDiscountCodeActive(id: string, isActive: boolean) {
+  await db.discountCode.update({
+    where: { id },
+    data: {
+      isActive,
+    },
+  });
+}
+
+export async function deleteDiscountCode(id: string) {
+  const discountCode = await db.discountCode.delete({ where: { id } });
+
+  if (!discountCode) return notFound();
+
+  return discountCode;
+}
