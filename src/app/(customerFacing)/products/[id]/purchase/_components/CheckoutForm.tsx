@@ -10,7 +10,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { formatCurrency, formatDiscountCode } from '@/lib/formatters';
-import { DiscountCodeType, Product } from '@prisma/client';
+import { DiscountCodeType } from '@prisma/client';
 import {
   Elements,
   useElements,
@@ -27,11 +27,11 @@ import {
 } from '@stripe/stripe-js';
 import Image from 'next/image';
 import { FormEvent, useRef, useState } from 'react';
-import { userOrderExists } from '@/app/actions/orders';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getDiscountedAmount } from '@/lib/discountCodeHelper';
+import { createPaymentIntent } from '@/actions/orders';
 
 interface CheckoutFormProps {
   product: {
@@ -46,7 +46,6 @@ interface CheckoutFormProps {
     discountAmount: number;
     discountType: DiscountCodeType;
   };
-  clientSecret: string;
 }
 
 const stripePromise = loadStripe(
@@ -55,25 +54,29 @@ const stripePromise = loadStripe(
 
 export default function CheckoutForm({
   product,
-  clientSecret,
   discountCode,
 }: CheckoutFormProps) {
-  const appearance: Appearance = {
-    theme: 'stripe',
-  };
-
-  // Options to initialize the Stripe Payment Element
-  const options: StripeElementsOptions = {
-    clientSecret,
-    appearance,
-  };
-
   const amount =
     discountCode == null
       ? product.priceInCents
       : getDiscountedAmount(discountCode, product.priceInCents);
 
   const isDiscounted = amount !== product.priceInCents;
+
+  /* Options to create the Stripe Element Instance
+   * Create element object without an Intent
+   */
+
+  const appearance: Appearance = {
+    theme: 'stripe',
+  };
+
+  const options: StripeElementsOptions = {
+    mode: 'payment',
+    currency: 'usd',
+    amount: amount,
+    appearance,
+  };
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-8">
@@ -103,9 +106,10 @@ export default function CheckoutForm({
           </div>
         </div>
       </div>
+      {/* Initialize Stripe Elements */}
       <Elements options={options} stripe={stripePromise}>
         <Form
-          priceInCents={product.priceInCents}
+          priceInCents={amount}
           productId={product.id}
           discountCode={discountCode}
         />
@@ -158,19 +162,31 @@ function Form({
 
     setIsLoading(true);
 
-    // Check for existing order for the current user
-    const orderExists = await userOrderExists(email, productId);
-
-    if (orderExists) {
-      setErrorMessage(
-        'You have already purchased this product. Try downloading it from the My Orders page'
-      );
+    // Trigger form validation and wallet collection
+    const formSubmit = await elements.submit();
+    if (formSubmit.error) {
+      setErrorMessage(formSubmit.error.message);
       setIsLoading(false);
       return;
     }
 
+    // Create the PaymentIntent and obtain clientSecret
+    const paymentIntent = await createPaymentIntent(
+      email,
+      productId,
+      discountCode?.id
+    );
+
+    if (paymentIntent.error != null) {
+      setErrorMessage(paymentIntent.error);
+      setIsLoading(false);
+      return;
+    }
+
+    // Confirm the PaymentIntent using the details collected by the Payment Element
     const { error } = await stripe.confirmPayment({
       elements,
+      clientSecret: paymentIntent.clientSecret,
       confirmParams: {
         // Redirect URL after they complete the payment
         return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success`,
@@ -233,6 +249,7 @@ function Form({
               <div className="w-full h-6 rounded bg-gray-100"></div>
             </div>
           )}
+          {/* Add the PaymentElement */}
           <PaymentElement
             id="payment-element"
             onChange={(e) => handleInputChange(e)}

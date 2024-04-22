@@ -4,10 +4,17 @@ import db from '@/db/db';
 import { z } from 'zod';
 import { Resend } from 'resend';
 import OrderHistoryEmail from '@/email/OrderHistory';
+import {
+  getDiscountedAmount,
+  usableDiscountCodeWhere,
+} from '@/lib/discountCodeHelper';
+import Stripe from 'stripe';
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
 const emailSchema = z.string().email();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 export async function emailOrderHistory(
   prevState: unknown,
@@ -81,4 +88,65 @@ export async function emailOrderHistory(
     message:
       'Check your email to view your order history and download your prodcuts.',
   };
+}
+
+export async function createPaymentIntent(
+  email: string,
+  productId: string,
+  discountCodeId?: string
+) {
+  const product = await db.product.findUnique({ where: { id: productId } });
+
+  if (!product) return { error: 'Unexpected Error' };
+
+  const discountCode =
+    discountCodeId == null
+      ? null
+      : await db.discountCode.findUnique({
+          where: { id: discountCodeId, ...usableDiscountCodeWhere(productId) },
+        });
+
+  // To handle the situation that user enterned the coupon(still valid), and stay in the checkout page for a while, when user actually click submit the form, check coupon code validaility again in case it expires
+  if (discountCode == null && discountCodeId != null) {
+    return { error: 'Coupon has expired' };
+  }
+
+  // Check for existing order for the current user
+  const existingOrder = await db.order.findFirst({
+    where: { user: { email }, productId },
+    select: { id: true },
+  });
+
+  if (existingOrder) {
+    return {
+      error:
+        'You have already purchased this product. Try downloading it from the My Orders page',
+    };
+  }
+
+  const amount =
+    discountCode == null
+      ? product.priceInCents
+      : getDiscountedAmount(discountCode, product.priceInCents);
+
+  // Create a payment intent object from Stripe
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    metadata: {
+      productId: product.id,
+      discountCodeId: discountCode?.id || null,
+    }, // inject custom metadata, will be used once payment successful to look for product (https://docs.stripe.com/api/metadata)
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
+
+  if (paymentIntent.client_secret === null) {
+    return {
+      error: 'Stripe failed to create payment intent...',
+    };
+  }
+
+  return { clientSecret: paymentIntent.client_secret };
 }

@@ -168,7 +168,7 @@ async function DiscountCodesTable({
                 {discountCode.limit === null ? (
                   <Infinity />
                 ) : (
-                  formatNumber(discountCode.limit - discountCode.uses)
+                  formatNumber(discountCode.limit - discountCode.uses) // Calculate the remaining uses
                 )}
               </TableCell>
               <TableCell>{formatNumber(discountCode._count.orders)}</TableCell>
