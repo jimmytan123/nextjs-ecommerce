@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical } from 'lucide-react';
+import { Minus, MoreVertical } from 'lucide-react';
 import db from '@/db/db';
 import { formatCurrency } from '@/lib/formatters';
 import { DeleteDropdownItem } from './_components/OrderActions';
@@ -33,6 +33,7 @@ function getOrders() {
       pricePaidInCents: true,
       product: { select: { name: true } },
       user: { select: { email: true } },
+      discountCode: { select: { code: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -40,44 +41,57 @@ function getOrders() {
 
 async function OrdersTable() {
   const orders = await getOrders();
-  //   console.log(orders);
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Product</TableHead>
-          <TableHead>Customer</TableHead>
-          <TableHead>Price Paid</TableHead>
-          <TableHead className="w-0">
-            <span className="sr-only">Actions</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {orders.map((order) => {
-          return (
-            <TableRow key={order.id}>
-              <TableCell>{order.product.name}</TableCell>
-              <TableCell>{order.user.email}</TableCell>
-              <TableCell>
-                {formatCurrency(order.pricePaidInCents / 100)}
-              </TableCell>
-              <TableCell className="text-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <MoreVertical />
-                    <span className="sr-only">Actions</span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DeleteDropdownItem id={order.id} />
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+    <>
+      {orders.length === 0 ? (
+        <p>No sales found.</p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Product</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Price Paid</TableHead>
+              <TableHead>Coupon</TableHead>
+              <TableHead className="w-0">
+                <span className="sr-only">Actions</span>
+              </TableHead>
             </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => {
+              return (
+                <TableRow key={order.id}>
+                  <TableCell>{order.product.name}</TableCell>
+                  <TableCell>{order.user.email}</TableCell>
+                  <TableCell>
+                    {formatCurrency(order.pricePaidInCents / 100)}
+                  </TableCell>
+                  <TableCell>
+                    {order.discountCode === null ? (
+                      <Minus />
+                    ) : (
+                      order.discountCode.code
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <MoreVertical />
+                        <span className="sr-only">Actions</span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DeleteDropdownItem id={order.id} />
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
+    </>
   );
 }

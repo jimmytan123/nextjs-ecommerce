@@ -1,3 +1,4 @@
+// Accept a password(from user input) then convert to the hased version, then compare to the hashedPassword(from the .env)
 export async function isVaildPassword(
   password: string,
   hasedPassword: string

@@ -8,22 +8,23 @@ export async function middleware(req: NextRequest) {
   if (!authenticated) {
     return new NextResponse('Unauthorized', {
       status: 401,
-      headers: { 'WWW-Authenticate': 'Basic' },
+      headers: { 'WWW-Authenticate': 'Basic' }, // Setting this header will prompt user to enter credientials https://www.geeksforgeeks.org/http-headers-www-authenticate/
     });
   }
 }
 
-async function isAuthenticated(req: NextRequest) {
+async function isAuthenticated(req: NextRequest): Promise<boolean> {
   const authHeader =
     req.headers.get('authorization') || req.headers.get('Authorization');
 
   if (!authHeader) return false;
 
+  // Decrypt the credientials
   const [username, password] = Buffer.from(authHeader.split(' ')[1], 'base64')
     .toString()
     .split(':');
 
-  //console.log(username, password);
+  // Compare user name input with the stored user name and password input
   return (
     username === process.env.ADMIN_USERNAME &&
     (await isVaildPassword(
@@ -33,7 +34,7 @@ async function isAuthenticated(req: NextRequest) {
   );
 }
 
-// Filter Middleware to run on specific paths
+// Filter Middleware to run on specific paths -> only run this middleware in admin routes
 export const config = {
   matcher: '/admin/:path*',
 };
