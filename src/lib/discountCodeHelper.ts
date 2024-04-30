@@ -19,7 +19,7 @@ export function usableDiscountCodeWhere(productId: string) {
   } satisfies Prisma.DiscountCodeWhereInput;
 }
 
-// For calcuating the discount amount
+// For calcuating the money amount after being discounted based on discout type
 export function getDiscountedAmount(
   discountCode: {
     discountAmount: number;
