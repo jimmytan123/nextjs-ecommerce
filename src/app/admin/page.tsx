@@ -8,6 +8,7 @@ import {
 
 import db from '@/db/db';
 import { formatCurrency, formatNumber } from '@/lib/formatters';
+import OrdersByDateChart from './_components/charts/OrdersByDateChart';
 
 async function getSalesData() {
   const data = await db.order.aggregate({
@@ -58,29 +59,41 @@ export default async function AdminDashboard() {
   ]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <DashboardCard
-        title="Sales"
-        subtitle={`${formatNumber(salesData.numberofSales)} Orders`}
-        body={formatCurrency(salesData.amount)}
-      />
-      <DashboardCard
-        title="Customers"
-        subtitle={`${formatCurrency(
-          userData.averageValuePerUser
-        )} Average Value`}
-        body={formatNumber(userData.userCount)}
-      />
-      <DashboardCard
-        title="Active Products"
-        subtitle={`${formatNumber(
-          productData.inactiveProductsCount
-        )} Inactive ${
-          productData.inactiveProductsCount > 1 ? 'Products' : 'Product'
-        } `}
-        body={formatNumber(productData.activeProductsCount)}
-      />
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DashboardCard
+          title="Sales"
+          subtitle={`${formatNumber(salesData.numberofSales)} Orders`}
+          body={formatCurrency(salesData.amount)}
+        />
+        <DashboardCard
+          title="Customers"
+          subtitle={`${formatCurrency(
+            userData.averageValuePerUser
+          )} Average Value`}
+          body={formatNumber(userData.userCount)}
+        />
+        <DashboardCard
+          title="Active Products"
+          subtitle={`${formatNumber(
+            productData.inactiveProductsCount
+          )} Inactive ${
+            productData.inactiveProductsCount > 1 ? 'Products' : 'Product'
+          } `}
+          body={formatNumber(productData.activeProductsCount)}
+        />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Sales</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OrdersByDateChart />
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
 
