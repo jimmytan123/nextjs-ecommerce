@@ -11,22 +11,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const data = [
-  {
-    value: 12,
-    date: '2024-05-02',
-  },
-  {
-    value: 25,
-    date: '2024-05-01',
-  },
-  {
-    value: 5,
-    date: '2024-04-30',
-  },
-];
+interface OrdersByDateChartProps {
+  data: {
+    date: string;
+    totalSales: number;
+  }[];
+}
 
-export default function OrdersByDateChart() {
+export default function OrdersByDateChart({ data }: OrdersByDateChartProps) {
   return (
     <ResponsiveContainer width="100%" minHeight={300}>
       <LineChart data={data}>
@@ -39,7 +31,7 @@ export default function OrdersByDateChart() {
         <Tooltip formatter={(value) => formatCurrency(value as number)} />
         <Line
           dot={false}
-          dataKey="value"
+          dataKey="totalSales"
           type="monotone"
           name="Total Sales"
           stroke="hsl(var(--primary))"

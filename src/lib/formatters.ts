@@ -15,6 +15,10 @@ const DATE_TIME_FORMATTER = new Intl.DateTimeFormat('en', {
   timeStyle: 'short',
 });
 
+const DATE_FORMATTER = new Intl.DateTimeFormat('en', {
+  dateStyle: 'medium',
+});
+
 export function formatCurrency(amount: number) {
   return CURRENCY_FORMATTER.format(amount);
 }
@@ -45,4 +49,8 @@ export function formatDiscountCode({
 
 export function formatDateTime(date: Date) {
   return DATE_TIME_FORMATTER.format(date);
+}
+
+export function formatDate(date: Date) {
+  return DATE_FORMATTER.format(date);
 }
