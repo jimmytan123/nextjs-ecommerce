@@ -229,7 +229,7 @@ function Form({
           <CardTitle>Checkout</CardTitle>
 
           <CardDescription className="text-destructive">
-            {errorMessage && <span>errorMessage</span>}
+            {errorMessage && <span>{errorMessage}</span>}
             {coupon != null && discountCode == null && (
               <span>Invalid discount code</span>
             )}

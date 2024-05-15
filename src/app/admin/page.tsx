@@ -8,9 +8,11 @@ import {
 
 import db from '@/db/db';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/formatters';
-import OrdersByDateChart from './_components/charts/OrdersByDateChart';
+import OrdersByDayChart from './_components/charts/OrdersByDayChart';
 import { Prisma } from '@prisma/client';
 import { interval, eachDayOfInterval, startOfDay, subDays } from 'date-fns';
+import { ReactNode } from 'react';
+import UsersByDayChart from './_components/charts/UsersByDayChart';
 
 async function getSalesData(
   createdAfter: Date | null,
@@ -67,15 +69,52 @@ async function getSalesData(
   };
 }
 
-async function getUserData() {
-  const [userCount, orderData] = await Promise.all([
+async function getUserData(
+  createdAfter: Date | null,
+  createdBefore: Date | null
+) {
+  // Create a query for finding chart data if any date range params exists
+  const createdAtQuery: Prisma.UserWhereInput['createdAt'] = {};
+  if (createdAfter) createdAtQuery.gte = createdAfter;
+  if (createdBefore) createdAtQuery.lte = createdBefore;
+
+  const [userCount, orderData, chartData] = await Promise.all([
     db.user.count(),
     db.order.aggregate({
       _sum: { pricePaidInCents: true },
     }),
+    db.user.findMany({
+      select: { createdAt: true },
+      where: { createdAt: createdAtQuery },
+      orderBy: { createdAt: 'asc' },
+    }),
   ]);
 
+  const dayArray = eachDayOfInterval(
+    interval(
+      createdAfter || startOfDay(chartData[0].createdAt),
+      createdBefore || new Date()
+    )
+  ).map((date) => {
+    return {
+      date: formatDate(date),
+      totalUsers: 0,
+    };
+  });
+
   return {
+    chartData: chartData.reduce((data, user) => {
+      const formattedDate = formatDate(user.createdAt);
+
+      // Find the current date entry we are interested in(working on)
+      const entry = dayArray.find((day) => day.date === formattedDate);
+
+      if (entry == null) return data;
+
+      entry.totalUsers += 1;
+
+      return data;
+    }, dayArray),
     userCount: userCount,
     averageValuePerUser:
       userCount === 0
@@ -98,8 +137,8 @@ async function getProductData() {
 
 export default async function AdminDashboard() {
   const [salesData, userData, productData] = await Promise.all([
-    getSalesData(subDays(new Date(), 6), new Date()), // previous 6 days + the current day
-    getUserData(),
+    getSalesData(subDays(new Date(), 13), new Date()), // previous 6 days + the current day
+    getUserData(subDays(new Date(), 5), new Date()),
     getProductData(),
   ]);
 
@@ -129,14 +168,12 @@ export default async function AdminDashboard() {
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Sales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OrdersByDateChart data={salesData.chartData} />
-          </CardContent>
-        </Card>
+        <ChartCard title="Total Sales">
+          <OrdersByDayChart data={salesData.chartData} />
+        </ChartCard>
+        <ChartCard title="New Customers">
+          <UsersByDayChart data={userData.chartData} />
+        </ChartCard>
       </div>
     </>
   );
@@ -158,6 +195,22 @@ function DashboardCard({ title, subtitle, body }: DashboardCardProps) {
       <CardContent>
         <p>{body}</p>
       </CardContent>
+    </Card>
+  );
+}
+
+interface ChartCardProps {
+  title: string;
+  children: ReactNode;
+}
+
+function ChartCard({ title, children }: ChartCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
     </Card>
   );
 }

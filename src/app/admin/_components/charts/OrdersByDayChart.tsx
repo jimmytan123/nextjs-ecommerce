@@ -11,14 +11,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-interface OrdersByDateChartProps {
+interface OrdersByDayChartProps {
   data: {
     date: string;
     totalSales: number;
   }[];
 }
 
-export default function OrdersByDateChart({ data }: OrdersByDateChartProps) {
+export default function OrdersByDayChart({ data }: OrdersByDayChartProps) {
   return (
     <ResponsiveContainer width="100%" minHeight={300}>
       <LineChart data={data}>
