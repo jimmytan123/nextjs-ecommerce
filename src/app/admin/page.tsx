@@ -154,10 +154,10 @@ async function getProductData(
           name: product.name,
           revenue: product.orders.reduce((sum, order) => {
             return sum + order.pricePaidInCents / 100;
-          }, 0),
+          }, 0), // Sum the every order amount for that individual product
         };
       })
-      .filter((product) => product.revenue > 0),
+      .filter((product) => product.revenue > 0), // Not showing the product to the chart if no revenue
     activeProductsCount,
     inactiveProductsCount,
   };
