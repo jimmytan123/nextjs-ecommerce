@@ -174,7 +174,7 @@ interface AdminDashboardProps {
 export default async function AdminDashboard({
   searchParams: { totalSalesRange, newCustomersRange, revenueByProductRange },
 }: AdminDashboardProps) {
-  // Obtain the range obtion based on the search params, defaulted to last 7 days option if there is no search params
+  // Obtain the range obtion based on the search params through props, defaulted to last 7 days/all time option if there is no search params
   const totalSalesRangeOption =
     getRangeOption(totalSalesRange) || RANGE_OPTIONS.last_7_days;
   const newCustomersRangeOption =
