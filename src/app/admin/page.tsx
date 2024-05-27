@@ -12,7 +12,7 @@ import OrdersByDayChart from './_components/charts/OrdersByDayChart';
 import UsersByDayChart from './_components/charts/UsersByDayChart';
 import RevenueByProductChart from './_components/charts/RevenueByProductChart';
 import { Prisma } from '@prisma/client';
-import { interval, eachDayOfInterval, startOfDay, subDays } from 'date-fns';
+import { interval, eachDayOfInterval, startOfDay } from 'date-fns';
 import { RANGE_OPTIONS, getRangeOption } from '@/lib/rangeOptions';
 
 async function getSalesData(
@@ -166,21 +166,45 @@ async function getProductData(
 interface AdminDashboardProps {
   searchParams: {
     totalSalesRange?: string;
+    totalSalesRangeFrom?: string;
+    totalSalesRangeTo?: string;
     newCustomersRange?: string;
+    newCustomersFrom?: string;
+    newCustomersTo?: string;
     revenueByProductRange?: string;
+    revenueByProductRangeFrom?: string;
+    revenueByProductRangeTo?: string;
   };
 }
 
 export default async function AdminDashboard({
-  searchParams: { totalSalesRange, newCustomersRange, revenueByProductRange },
+  searchParams: {
+    totalSalesRange,
+    totalSalesRangeFrom,
+    totalSalesRangeTo,
+    newCustomersRange,
+    newCustomersFrom,
+    newCustomersTo,
+    revenueByProductRange,
+    revenueByProductRangeFrom,
+    revenueByProductRangeTo,
+  },
 }: AdminDashboardProps) {
   // Obtain the range obtion based on the search params through props, defaulted to last 7 days/all time option if there is no search params
   const totalSalesRangeOption =
-    getRangeOption(totalSalesRange) || RANGE_OPTIONS.last_7_days;
+    getRangeOption(totalSalesRange, totalSalesRangeFrom, totalSalesRangeTo) ||
+    RANGE_OPTIONS.last_7_days;
+
   const newCustomersRangeOption =
-    getRangeOption(newCustomersRange) || RANGE_OPTIONS.last_7_days;
+    getRangeOption(newCustomersRange, newCustomersFrom, newCustomersTo) ||
+    RANGE_OPTIONS.last_7_days;
+
   const revenueByProductRangeOption =
-    getRangeOption(revenueByProductRange) || RANGE_OPTIONS.all_time;
+    getRangeOption(
+      revenueByProductRange,
+      revenueByProductRangeFrom,
+      revenueByProductRangeTo
+    ) || RANGE_OPTIONS.all_time;
 
   const [salesData, userData, productData] = await Promise.all([
     getSalesData(
