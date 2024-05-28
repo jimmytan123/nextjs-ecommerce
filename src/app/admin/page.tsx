@@ -307,7 +307,7 @@ function DashboardCard({ title, subtitle, body }: DashboardCardProps) {
   );
 }
 
-// Return the array of dates within the specified time interval conditionally.
+// Return an array & a format function of dates within the specified time interval conditionally.
 function getChartDateArray(startDate: Date, endDate: Date = new Date()) {
   // Obtain the days range
   const days = differenceInDays(endDate, startDate);
