@@ -12,8 +12,23 @@ import OrdersByDayChart from './_components/charts/OrdersByDayChart';
 import UsersByDayChart from './_components/charts/UsersByDayChart';
 import RevenueByProductChart from './_components/charts/RevenueByProductChart';
 import { Prisma } from '@prisma/client';
-import { interval, eachDayOfInterval, startOfDay } from 'date-fns';
+import {
+  interval,
+  eachDayOfInterval,
+  startOfDay,
+  differenceInDays,
+  differenceInWeeks,
+  eachWeekOfInterval,
+  startOfWeek,
+  endOfWeek,
+  max,
+  min,
+  differenceInMonths,
+  eachMonthOfInterval,
+  eachYearOfInterval,
+} from 'date-fns';
 import { RANGE_OPTIONS, getRangeOption } from '@/lib/rangeOptions';
+import { array, date } from 'zod';
 
 async function getSalesData(
   createdAfter: Date | null,
@@ -36,16 +51,15 @@ async function getSalesData(
     }),
   ]);
 
-  // eachDayOfInterval - Return the array of dates within the specified time interval.
   // Construct an array of dates for the given range, with each day's total sales as 0
-  const dayArray = eachDayOfInterval(
-    interval(
-      createdAfter || startOfDay(chartData[0].createdAt),
-      createdBefore || new Date()
-    )
-  ).map((date) => {
+  const { array, format } = getChartDateArray(
+    createdAfter || startOfDay(chartData[0].createdAt),
+    createdBefore || new Date()
+  );
+
+  const dayArray = array.map((date) => {
     return {
-      date: formatDate(date),
+      date: format(date),
       totalSales: 0,
     };
   });
@@ -53,7 +67,7 @@ async function getSalesData(
   return {
     // Reduce function: Taking all orders, totaling all the sales for each individual date
     chartData: chartData.reduce((data, order) => {
-      const formattedDate = formatDate(order.createdAt);
+      const formattedDate = format(order.createdAt);
 
       // Find the current date entry we are interested in(working on)
       const entry = dayArray.find((day) => day.date === formattedDate);
@@ -91,21 +105,21 @@ async function getUserData(
     }),
   ]);
 
-  const dayArray = eachDayOfInterval(
-    interval(
-      createdAfter || startOfDay(chartData[0].createdAt),
-      createdBefore || new Date()
-    )
-  ).map((date) => {
+  const { array, format } = getChartDateArray(
+    createdAfter || startOfDay(chartData[0].createdAt),
+    createdBefore || new Date()
+  );
+
+  const dayArray = array.map((date) => {
     return {
-      date: formatDate(date),
+      date: format(date),
       totalUsers: 0,
     };
   });
 
   return {
     chartData: chartData.reduce((data, user) => {
-      const formattedDate = formatDate(user.createdAt);
+      const formattedDate = format(user.createdAt);
 
       // Find the current date entry we are interested in(working on)
       const entry = dayArray.find((day) => day.date === formattedDate);
@@ -291,4 +305,52 @@ function DashboardCard({ title, subtitle, body }: DashboardCardProps) {
       </CardContent>
     </Card>
   );
+}
+
+// Return the array of dates within the specified time interval conditionally.
+function getChartDateArray(startDate: Date, endDate: Date = new Date()) {
+  // Obtain the days range
+  const days = differenceInDays(endDate, startDate);
+
+  // If date range is less than 30 days, return an object with date array by each day and a format function
+  if (days < 30) {
+    return {
+      array: eachDayOfInterval(interval(startDate, endDate)),
+      format: formatDate,
+    };
+  }
+
+  // If range is more than 30 days, less than 30 weeks, display by week
+  const weeks = differenceInWeeks(endDate, startDate);
+  if (weeks < 30) {
+    return {
+      array: eachWeekOfInterval(interval(startDate, endDate)),
+      format: (date: Date) => {
+        const start = max([startOfWeek(date), startDate]);
+        const end = min([endOfWeek(date), endDate]);
+
+        return `${formatDate(start)} - ${formatDate(end)}`;
+      },
+    };
+  }
+
+  // If range is more than 30 weeks, less than 30 months, display by month
+  const months = differenceInMonths(endDate, startDate);
+  if (months < 30) {
+    return {
+      array: eachMonthOfInterval(interval(startDate, endDate)),
+      format: new Intl.DateTimeFormat('en', {
+        month: 'long',
+        year: 'numeric',
+      }).format,
+    };
+  }
+
+  // If range is more than 30 months, display by year
+  return {
+    array: eachYearOfInterval(interval(startDate, endDate)),
+    format: new Intl.DateTimeFormat('en', {
+      year: 'numeric',
+    }).format,
+  };
 }
