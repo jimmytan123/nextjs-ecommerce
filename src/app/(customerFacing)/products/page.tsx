@@ -4,6 +4,7 @@ import ProductCard from '@/components/ProductCard';
 import db from '@/db/db';
 import { cache } from '@/lib/cache';
 
+// Get all available products from DB
 const getProducts = cache(() => {
   return db.product.findMany({
     where: { isAvailableForPurchase: true },

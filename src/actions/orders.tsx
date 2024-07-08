@@ -26,6 +26,7 @@ export async function emailOrderHistory(
     return { error: 'Invalid email address' };
   }
 
+  // Find user in DB based on email
   const user = await db.user.findUnique({
     where: { email: result.data },
     select: {
@@ -49,7 +50,7 @@ export async function emailOrderHistory(
   });
 
   if (user === null) {
-    // For security concern, here display a more generic error message
+    // No such user -> For security concern, here display a more generic error message
     return {
       message:
         'Check your email to view your order history and download your prodcuts.',
@@ -111,7 +112,7 @@ export async function createPaymentIntent(
     return { error: 'Coupon has expired' };
   }
 
-  // Check for existing order for the current user
+  // Check for existing order for the current user, if order made previously, not allow user to re-purchase
   const existingOrder = await db.order.findFirst({
     where: { user: { email }, productId },
     select: { id: true },

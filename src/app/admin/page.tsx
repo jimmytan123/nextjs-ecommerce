@@ -28,7 +28,6 @@ import {
   eachYearOfInterval,
 } from 'date-fns';
 import { RANGE_OPTIONS, getRangeOption } from '@/lib/rangeOptions';
-import { array, date } from 'zod';
 
 async function getSalesData(
   createdAfter: Date | null,

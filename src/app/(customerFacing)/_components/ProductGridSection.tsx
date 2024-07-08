@@ -35,6 +35,7 @@ export default async function ProductGridSection({
             </>
           }
         >
+          {/* List of Product Cards */}
           <ProductSuspense productsFetcher={productsFetcher} />
         </Suspense>
       </div>

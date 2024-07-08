@@ -21,7 +21,7 @@ export default async function PurchasePage({
 
   if (product == null) return notFound();
 
-  // Find discount code in DB by the search params ?coupon=<>
+  // Find discount code in DB by the search params ?coupon=<> (optional)
   const discountCode =
     coupon == null ? undefined : await getDiscountCode(coupon, product.id);
 
