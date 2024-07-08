@@ -8,7 +8,7 @@ import Link from 'next/link';
 // Load Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-// SuccessPage - after Stripe redirect
+// Success Page - after payment made and Stripe redirect
 export default async function SuccessPage({
   searchParams,
 }: {

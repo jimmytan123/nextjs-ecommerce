@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isVaildPassword } from './lib/isValidPassword';
 
-//Define Middleware for protecting routes
+// Define Middleware for protecting routes
 export async function middleware(req: NextRequest) {
   const authenticated = await isAuthenticated(req);
 
@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
   }
 }
 
+// Returns a Boolean value after comparing username and password input
 async function isAuthenticated(req: NextRequest): Promise<boolean> {
   const authHeader =
     req.headers.get('authorization') || req.headers.get('Authorization');
@@ -34,7 +35,7 @@ async function isAuthenticated(req: NextRequest): Promise<boolean> {
   );
 }
 
-// Filter Middleware to run on specific paths -> only run this middleware in admin routes
+// Filter Middleware to run on specific paths -> only run this middleware in admin routes -> Protecting admin routes
 export const config = {
   matcher: '/admin/:path*',
 };

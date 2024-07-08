@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
-// Stripe will call this webhook endpoint
+// Stripe will push real-time event data to this webhook endpoint when events happen
 export async function POST(req: NextRequest) {
   let event: Stripe.Event;
 

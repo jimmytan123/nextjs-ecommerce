@@ -15,12 +15,14 @@ export async function GET(
     select: { product: { select: { filePath: true, name: true } } },
   });
 
+  // Redirect to download link expired page if invalid download verification found
   if (data == null) {
     return NextResponse.redirect(
       new URL('/products/download/expired', req.url)
     );
   }
 
+  // Build download link
   const { size } = await fs.stat(data.product.filePath);
   const file = await fs.readFile(data.product.filePath);
   const extension = data.product.filePath.split('.').pop();
