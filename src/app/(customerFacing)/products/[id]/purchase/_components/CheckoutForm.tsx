@@ -189,7 +189,7 @@ function Form({
       clientSecret: paymentIntent.clientSecret,
       confirmParams: {
         // Redirect URL after they complete the payment
-        return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success`,
+        return_url: `${process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SERVER_URL : 'http://localhost:3000'}/stripe/purchase-success`,
       },
     });
 

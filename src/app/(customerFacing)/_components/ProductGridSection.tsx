@@ -52,6 +52,8 @@ async function ProductSuspense({
   // Fetch products based on productsFetcher function where coming from parent/grandparent level component
   const products = await productsFetcher();
 
+  if (products.length === 0) return <p>No Products...</p>;
+
   return products.map((product) => {
     return (
       <ProductCard

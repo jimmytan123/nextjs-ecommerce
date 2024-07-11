@@ -22,6 +22,8 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`Webhook Error: ${err}`, { status: 400 });
   }
 
+  console.log(event.type);
+
   // Handle the event
   switch (event.type) {
     //https://docs.stripe.com/api/events/types#event_types-charge.succeeded

@@ -35,6 +35,8 @@ export default function ProductsPage() {
 async function ProductSuspense() {
   const products = await getProducts();
 
+  if (products.length === 0) return <p>No Products...</p>;
+
   return products.map((product) => {
     return (
       <ProductCard
