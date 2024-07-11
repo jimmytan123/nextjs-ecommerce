@@ -7,8 +7,9 @@ generator client {
 
 // https://www.prisma.io/docs/orm/prisma-schema/overview/data-sources
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Product {
@@ -42,8 +43,8 @@ model Order {
 
   userId         String
   productId      String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product        Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product        Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
   discountCodeId String?
   discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id], onDelete: Restrict)
 }

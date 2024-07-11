@@ -53,7 +53,7 @@ export default function OrderInfomation({
         <Img
           width="100%"
           alt={product.name}
-          src={`${process.env.NEXT_PUBLIC_SERVER_URL}${product.imagePath}`}
+          src={`${process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SERVER_URL : 'http://localhost:3000'}${product.imagePath}`}
         />
         <Row className="mt-8">
           <Column className="align-bottom">
@@ -61,7 +61,7 @@ export default function OrderInfomation({
           </Column>
           <Column align="right">
             <Button
-              href={`${process.env.NEXT_PUBLIC_SERVER_URL}/products/download/${downloadVerificationId}`}
+              href={`${process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SERVER_URL : 'http://localhost:3000'}/products/download/${downloadVerificationId}`}
               className="bg-blue-600 text-white px-2 py-2 md:px-4 md:py-3 rounded text-md"
             >
               Download
